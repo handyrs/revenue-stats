@@ -25,7 +25,6 @@
     .header-right { display: flex; align-items: center; gap: 10px; }
     .btn {
       font-size: 13px;
-      text-decoration: none;
       padding: 8px 14px;
       border-radius: 8px;
       cursor: pointer;
@@ -33,21 +32,9 @@
       border: none;
       font-weight: 500;
     }
-    .btn-outline {
-      color: #9ca3af;
-      border: 1px solid #2d3748;
-      background: transparent;
-    }
+    .btn-outline { color: #9ca3af; border: 1px solid #2d3748; background: transparent; }
     .btn-outline:hover { border-color: #3b82f6; color: #3b82f6; }
-    .btn-primary {
-      background: #3b82f6;
-      color: white;
-    }
-    .btn-primary:hover { background: #2563eb; }
-    .btn-green {
-      background: #10b981;
-      color: white;
-    }
+    .btn-green { background: #10b981; color: white; }
     .btn-green:hover { background: #059669; }
 
     .overview {
@@ -250,6 +237,46 @@
     }
     .toast.show { opacity: 1; }
 
+    /* Token 输入弹窗 */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal {
+      background: #1a2332;
+      border: 1px solid #2d3748;
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 480px;
+      width: 90%;
+    }
+    .modal h2 { font-size: 20px; margin-bottom: 12px; }
+    .modal p { font-size: 14px; color: #9ca3af; margin-bottom: 20px; line-height: 1.6; }
+    .modal input {
+      width: 100%;
+      background: #0f1419;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      padding: 12px;
+      color: #e5e7eb;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    .modal input:focus { outline: none; border-color: #3b82f6; }
+    .modal .btn-row { display: flex; gap: 12px; justify-content: flex-end; }
+    .modal .btn-row .btn { padding: 10px 20px; }
+    .modal .hint { font-size: 12px; color: #6b7280; margin-top: 12px; }
+    .modal .hint a { color: #3b82f6; text-decoration: none; }
+
     @media (max-width: 900px) {
       .overview { grid-template-columns: repeat(2, 1fr); }
       .main-grid { grid-template-columns: 1fr; }
@@ -258,6 +285,23 @@
   </style>
 </head>
 <body>
+  <!-- Token 弹窗 -->
+  <div class="modal-overlay" id="tokenModal">
+    <div class="modal">
+      <h2>🔑 设置 GitHub Token</h2>
+      <p>为了同步数据到 GitHub，需要你的 GitHub Personal Access Token。Token 只存在你浏览器本地，不会传给任何人。</p>
+      <input type="password" id="tokenInput" placeholder="粘贴你的 GitHub Token...">
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="useLocalOnly()">本地模式</button>
+        <button class="btn btn-green" onclick="saveToken()">确认</button>
+      </div>
+      <div class="hint">
+        Token 创建：<a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a><br>
+        勾选 <strong>gist</strong> 权限即可
+      </div>
+    </div>
+  </div>
+
   <div class="container">
     <header>
       <div style="display:flex;align-items:center;gap:12px;">
@@ -265,7 +309,8 @@
         <h1>项目营收统计</h1>
       </div>
       <div class="header-right">
-        <button class="btn btn-outline" onclick="clearAll()">🗑️ 清空全部</button>
+        <span id="syncStatus" style="font-size:12px;color:#6b7280;margin-right:8px;"></span>
+        <button class="btn btn-outline" onclick="clearAll()">🗑️ 清空</button>
       </div>
     </header>
 
@@ -292,7 +337,7 @@
       <div class="projects-panel">
         <div class="panel-title">项目</div>
         <div class="project-list" id="projectList">
-          <div style="color:#6b7280;font-size:14px;padding:12px;">暂无项目，添加一个开始吧~</div>
+          <div class="loading" style="text-align:center;padding:20px;color:#6b7280;">加载中...</div>
         </div>
         <div class="add-project">
           <input type="text" id="newProjectName" placeholder="新项目名称..." onkeydown="if(event.key==='Enter')addProject()">
@@ -357,10 +402,15 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    var STORAGE_KEY = 'revenue-stats-data-v3';
+    var TOKEN_KEY = 'revenue-stats-token';
+    var GIST_ID_KEY = 'revenue-stats-gist-id';
+    var DATA_KEY = 'revenue-stats-data';
 
     var data = { projects: [], entries: [] };
     var selectedProjectId = null;
+    var token = null;
+    var gistId = null;
+    var isSyncing = false;
 
     function formatMoney(n) {
       return '¥' + n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -379,6 +429,10 @@
       toast.textContent = msg;
       toast.classList.add('show');
       setTimeout(function() { toast.classList.remove('show'); }, 2000);
+    }
+
+    function setSyncStatus(msg) {
+      document.getElementById('syncStatus').textContent = msg;
     }
 
     function getProjectStats(projectId) {
@@ -524,24 +578,168 @@
       return div.innerHTML;
     }
 
-    function saveData() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    // 保存到本地
+    function saveLocal() {
+      localStorage.setItem(DATA_KEY, JSON.stringify(data));
     }
 
-    function loadData() {
-      var stored = localStorage.getItem(STORAGE_KEY);
+    // 从本地加载
+    function loadLocal() {
+      var stored = localStorage.getItem(DATA_KEY);
       if (stored) {
         try {
-          data = JSON.parse(stored);
+          return JSON.parse(stored);
         } catch (e) {
-          data = { projects: [], entries: [] };
+          return { projects: [], entries: [] };
         }
       }
+      return { projects: [], entries: [] };
+    }
+
+    // 创建 Gist
+    async function createGist() {
+      var content = JSON.stringify(data, null, 2);
+      var resp = await fetch('https://api.github.com/gists', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'token ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          description: '项目营收统计数据',
+          public: true,
+          files: {
+            'data.json': { content: content }
+          }
+        })
+      });
+      var result = await resp.json();
+      if (result.id) {
+        gistId = result.id;
+        localStorage.setItem(GIST_ID_KEY, gistId);
+        return result.id;
+      }
+      throw new Error('创建 Gist 失败');
+    }
+
+    // 更新 Gist
+    async function updateGist() {
+      if (!gistId) return;
+      if (isSyncing) return;
+      isSyncing = true;
+      setSyncStatus('同步中...');
+
+      var content = JSON.stringify(data, null, 2);
+      try {
+        await fetch('https://api.github.com/gists/' + gistId, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': 'token ' + token,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            files: {
+              'data.json': { content: content }
+            }
+          })
+        });
+        setSyncStatus('已同步');
+      } catch (e) {
+        setSyncStatus('同步失败');
+      }
+      isSyncing = false;
+    }
+
+    // 从 Gist 加载（公开读取，不需要 token）
+    async function loadFromGist() {
+      if (!gistId) return null;
+      try {
+        var resp = await fetch('https://api.github.com/gists/' + gistId);
+        if (resp.ok) {
+          var result = await resp.json();
+          if (result.files && result.files['data.json']) {
+            return JSON.parse(result.files['data.json'].content);
+          }
+        }
+      } catch (e) {}
+      return null;
+    }
+
+    // 整体加载流程
+    async function loadData() {
+      token = localStorage.getItem(TOKEN_KEY);
+      gistId = localStorage.getItem(GIST_ID_KEY);
+
+      // 先从本地加载显示
+      data = loadLocal();
+      renderAll();
+
+      // 如果没有 token，弹窗要求输入
+      if (!token) {
+        document.getElementById('tokenModal').classList.remove('hidden');
+        return;
+      }
+
+      // 有 token，尝试从 Gist 加载最新数据
+      if (gistId) {
+        var gistData = await loadFromGist();
+        if (gistData && gistData.projects && gistData.entries) {
+          // 如果 Gist 数据比本地新，用 Gist 数据
+          var localData = loadLocal();
+          var localUpdated = localData.entries.length > 0 ?
+            Math.max.apply(null, localData.entries.map(function(e) { return e.created_at || 0; })) : 0;
+          var gistUpdated = gistData.entries.length > 0 ?
+            Math.max.apply(null, gistData.entries.map(function(e) { return e.created_at || 0; })) : 0;
+
+          if (gistUpdated > localUpdated) {
+            data = gistData;
+            saveLocal();
+            renderAll();
+            showToast('已加载最新数据');
+          }
+        }
+        setSyncStatus('已连接');
+      }
+    }
+
+    function renderAll() {
       updateProjectSelect();
       renderOverview();
       renderProjects();
       renderChart();
       renderTable();
+    }
+
+    // 保存 Token
+    function saveToken() {
+      var input = document.getElementById('tokenInput');
+      var t = input.value.trim();
+      if (!t) { alert('请输入 Token'); return; }
+      token = t;
+      localStorage.setItem(TOKEN_KEY, token);
+      document.getElementById('tokenModal').classList.add('hidden');
+
+      // 创建 Gist 并保存
+      (async function() {
+        try {
+          await createGist();
+          setSyncStatus('已同步');
+          showToast('Token 已保存，数据将同步到 GitHub');
+          saveLocal();
+          renderAll();
+          updateGist();
+        } catch (e) {
+          showToast('Token 无效或权限不足');
+          console.error(e);
+        }
+      })();
+    }
+
+    // 使用本地模式
+    function useLocalOnly() {
+      document.getElementById('tokenModal').classList.add('hidden');
+      setSyncStatus('本地模式');
+      showToast('已切换本地模式，数据不共享');
     }
 
     function addProject() {
@@ -552,11 +750,9 @@
 
       data.projects.push({ id: genId(), name: name, created_at: Date.now() });
       input.value = '';
-      saveData();
-      updateProjectSelect();
-      renderOverview();
-      renderProjects();
-      renderChart();
+      saveLocal();
+      renderAll();
+      if (token) updateGist();
       showToast('项目已添加');
     }
 
@@ -573,34 +769,27 @@
       document.getElementById('entryAmount').value = '';
       document.getElementById('entryNote').value = '';
 
-      saveData();
-      renderOverview();
-      renderProjects();
-      renderChart();
-      renderTable();
+      saveLocal();
+      renderAll();
+      if (token) updateGist();
       showToast('账目已添加');
     }
 
     function deleteEntry(id) {
       if (!confirm('确定删除这条记录？')) return;
       data.entries = data.entries.filter(function(e) { return e.id !== id; });
-      saveData();
-      renderOverview();
-      renderProjects();
-      renderChart();
-      renderTable();
+      saveLocal();
+      renderAll();
+      if (token) updateGist();
     }
 
     function clearAll() {
       if (!confirm('确定清空所有数据？此操作不可恢复！')) return;
       data = { projects: [], entries: [] };
       selectedProjectId = null;
-      saveData();
-      updateProjectSelect();
-      renderOverview();
-      renderProjects();
-      renderChart();
-      renderTable();
+      saveLocal();
+      renderAll();
+      if (token) updateGist();
       showToast('已清空全部');
     }
 
