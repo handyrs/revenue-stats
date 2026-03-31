@@ -1,0 +1,27 @@
+{
+  "projects": [
+    {
+      "id": "1",
+      "name": "TRBOTS 策略A",
+      "created_at": 1743400000000
+    }
+  ],
+  "entries": [
+    {
+      "id": "e1",
+      "project_id": "1",
+      "type": "cost",
+      "amount": 5000,
+      "note": "服务器费用",
+      "created_at": 1743400100000
+    },
+    {
+      "id": "e2",
+      "project_id": "1",
+      "type": "revenue",
+      "amount": 12000,
+      "note": "策略收益",
+      "created_at": 1743400200000
+    }
+  ]
+}

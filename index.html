@@ -18,13 +18,22 @@
     header {
       display: flex;
       align-items: center;
-      gap: 12px;
+      justify-content: space-between;
       margin-bottom: 24px;
     }
     header h1 { font-size: 24px; font-weight: 600; }
-    header span { font-size: 28px; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .edit-link {
+      font-size: 13px;
+      color: #3b82f6;
+      text-decoration: none;
+      padding: 8px 14px;
+      border: 1px solid #3b82f6;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .edit-link:hover { background: #3b82f6; color: white; }
 
-    /* 概览卡片 */
     .overview {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -36,16 +45,13 @@
       border-radius: 12px;
       padding: 20px;
       border: 1px solid #2d3748;
-      transition: transform 0.2s, border-color 0.2s;
     }
-    .stat-card:hover { transform: translateY(-2px); border-color: #3b82f6; }
     .stat-card .label { font-size: 13px; color: #9ca3af; margin-bottom: 8px; }
     .stat-card .value { font-size: 28px; font-weight: 700; }
     .stat-card .value.green { color: #10b981; }
     .stat-card .value.red { color: #ef4444; }
     .stat-card .value.blue { color: #3b82f6; }
 
-    /* 主布局 */
     .main-grid {
       display: grid;
       grid-template-columns: 300px 1fr;
@@ -53,7 +59,6 @@
       margin-bottom: 24px;
     }
 
-    /* 项目列表 */
     .projects-panel { }
     .panel-title {
       font-size: 14px;
@@ -81,80 +86,11 @@
     .project-item .profit.negative { color: #ef4444; }
     .project-item .profit.zero { color: #9ca3af; }
 
-    /* 添加项目 */
-    .add-project {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-    }
-    .add-project input {
-      flex: 1;
-      background: #1a2332;
-      border: 1px solid #2d3748;
-      border-radius: 8px;
-      padding: 10px 12px;
-      color: #e5e7eb;
-      font-size: 14px;
-    }
-    .add-project input:focus { outline: none; border-color: #3b82f6; }
-    .add-project button {
-      background: #3b82f6;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 16px;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .add-project button:hover { background: #2563eb; }
-
-    /* 图表区 */
     .chart-panel { background: #1a2332; border-radius: 12px; padding: 20px; border: 1px solid #2d3748; }
     .chart-container { position: relative; height: 260px; display: flex; align-items: center; justify-content: center; }
     canvas { max-width: 100%; max-height: 100%; }
     .chart-empty { color: #9ca3af; font-size: 14px; }
 
-    /* 录入区 */
-    .entry-panel {
-      background: #1a2332;
-      border-radius: 12px;
-      padding: 20px;
-      border: 1px solid #2d3748;
-      margin-bottom: 24px;
-    }
-    .entry-form {
-      display: grid;
-      grid-template-columns: 160px 120px 140px 1fr 100px;
-      gap: 12px;
-      align-items: end;
-    }
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
-    .form-group label { font-size: 12px; color: #9ca3af; font-weight: 500; }
-    .form-group select, .form-group input {
-      background: #0f1419;
-      border: 1px solid #2d3748;
-      border-radius: 8px;
-      padding: 10px 12px;
-      color: #e5e7eb;
-      font-size: 14px;
-    }
-    .form-group select:focus, .form-group input:focus { outline: none; border-color: #3b82f6; }
-    .form-group select { cursor: pointer; }
-    .btn-add {
-      background: #10b981;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 20px;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-      height: 42px;
-    }
-    .btn-add:hover { background: #059669; }
-
-    /* 表格 */
     .table-panel {
       background: #1a2332;
       border-radius: 12px;
@@ -195,66 +131,79 @@
     .amount { font-weight: 600; font-variant-numeric: tabular-nums; }
     .amount.cost { color: #ef4444; }
     .amount.revenue { color: #10b981; }
-    .delete-btn {
-      background: none;
-      border: none;
-      color: #6b7280;
-      cursor: pointer;
-      font-size: 16px;
-      padding: 4px 8px;
-      border-radius: 4px;
-      transition: all 0.2s;
-    }
-    .delete-btn:hover { background: rgba(239,68,68,0.15); color: #ef4444; }
     .empty-table { text-align: center; padding: 48px; color: #6b7280; }
+    .loading { text-align: center; padding: 48px; color: #9ca3af; }
+
+    .tip-box {
+      background: #1a2332;
+      border: 1px solid #2d3748;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .tip-box .icon { font-size: 20px; }
+    .tip-box .text { font-size: 14px; color: #9ca3af; }
+    .tip-box a { color: #3b82f6; text-decoration: none; }
+    .tip-box a:hover { text-decoration: underline; }
 
     @media (max-width: 900px) {
       .overview { grid-template-columns: repeat(2, 1fr); }
       .main-grid { grid-template-columns: 1fr; }
-      .entry-form { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <span>📊</span>
-      <h1>项目营收统计</h1>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-size:28px;">📊</span>
+        <h1>项目营收统计</h1>
+      </div>
+      <div class="header-right">
+        <a href="https://github.com/handyrs/revenue-stats/edit/main/data.json" target="_blank" class="edit-link">
+          ✏️ 编辑数据
+        </a>
+      </div>
     </header>
 
-    <!-- 概览卡片 -->
+    <div class="tip-box">
+      <span class="icon">💡</span>
+      <span class="text">
+        数据存储在 GitHub 的 <a href="https://github.com/handyrs/revenue-stats/blob/main/data.json" target="_blank">data.json</a> 文件中。
+        点击上方「编辑数据」按钮跳转到 GitHub 直接编辑 JSON 文件保存即可。
+      </span>
+    </div>
+
     <div class="overview">
       <div class="stat-card">
         <div class="label">项目数</div>
-        <div class="value blue" id="totalProjects">0</div>
+        <div class="value blue" id="totalProjects">-</div>
       </div>
       <div class="stat-card">
         <div class="label">总成本</div>
-        <div class="value red" id="totalCost">¥0</div>
+        <div class="value red" id="totalCost">-</div>
       </div>
       <div class="stat-card">
         <div class="label">总收入</div>
-        <div class="value green" id="totalRevenue">¥0</div>
+        <div class="value green" id="totalRevenue">-</div>
       </div>
       <div class="stat-card">
         <div class="label">净利润</div>
-        <div class="value" id="totalProfit">¥0</div>
+        <div class="value" id="totalProfit">-</div>
       </div>
     </div>
 
-    <!-- 主布局 -->
     <div class="main-grid">
-      <!-- 项目列表 -->
       <div class="projects-panel">
         <div class="panel-title">项目</div>
-        <div class="project-list" id="projectList"></div>
-        <div class="add-project">
-          <input type="text" id="newProjectName" placeholder="新项目名称...">
-          <button onclick="addProject()">+</button>
+        <div class="project-list" id="projectList">
+          <div class="loading">加载中...</div>
         </div>
       </div>
 
-      <!-- 图表 -->
       <div class="chart-panel">
         <div class="panel-title">项目对比</div>
         <div class="chart-container">
@@ -263,76 +212,31 @@
       </div>
     </div>
 
-    <!-- 录入区 -->
-    <div class="entry-panel">
-      <div class="panel-title" style="margin-bottom: 16px;">快速录入</div>
-      <div class="entry-form">
-        <div class="form-group">
-          <label>项目</label>
-          <select id="entryProject"><option value="">选择项目</option></select>
-        </div>
-        <div class="form-group">
-          <label>类型</label>
-          <select id="entryType">
-            <option value="cost">成本 / 支出</option>
-            <option value="revenue">收入</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>金额 (¥)</label>
-          <input type="number" id="entryAmount" placeholder="0.00" min="0" step="0.01">
-        </div>
-        <div class="form-group">
-          <label>备注</label>
-          <input type="text" id="entryNote" placeholder="可选说明...">
-        </div>
-        <button class="btn-add" onclick="addEntry()">添加</button>
-      </div>
-    </div>
-
-    <!-- 表格 -->
     <div class="table-panel">
       <div class="table-header">
         <h3>账目录入明细</h3>
-        <button class="delete-btn" onclick="clearAll()" style="font-size:13px;padding:6px 12px;">清空全部</button>
+        <span id="lastUpdate" style="font-size:12px;color:#6b7280;"></span>
       </div>
-      <div id="tableContainer">
-        <table>
-          <thead>
-            <tr>
-              <th>日期</th>
-              <th>项目</th>
-              <th>类型</th>
-              <th>金额</th>
-              <th>备注</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
-      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>日期</th>
+            <th>项目</th>
+            <th>类型</th>
+            <th>金额</th>
+            <th>备注</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"><tr><td colspan="5" class="loading">加载中...</td></tr></tbody>
+      </table>
     </div>
   </div>
 
   <script>
-    const STORAGE_KEY = 'revenue-stats-data';
+    const DATA_URL = 'https://raw.githubusercontent.com/handyrs/revenue-stats/main/data.json?t=' + Date.now();
 
-    let data = loadData();
+    let data = { projects: [], entries: [] };
     let selectedProjectId = null;
-
-    function loadData() {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) return JSON.parse(stored);
-      return { projects: [], entries: [] };
-    }
-
-    function saveData() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    }
-
-    function genId() {
-      return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-    }
 
     function formatMoney(n) {
       return '¥' + n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -342,15 +246,13 @@
       return new Date(ts).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     }
 
-    // 计算项目统计
     function getProjectStats(projectId) {
-      const entries = data.entries.filter(e => e.projectId === projectId);
+      const entries = data.entries.filter(e => e.project_id === projectId);
       const cost = entries.filter(e => e.type === 'cost').reduce((s, e) => s + e.amount, 0);
       const revenue = entries.filter(e => e.type === 'revenue').reduce((s, e) => s + e.amount, 0);
       return { cost, revenue, profit: revenue - cost };
     }
 
-    // 渲染概览
     function renderOverview() {
       const totalCost = data.entries.filter(e => e.type === 'cost').reduce((s, e) => s + e.amount, 0);
       const totalRevenue = data.entries.filter(e => e.type === 'revenue').reduce((s, e) => s + e.amount, 0);
@@ -365,11 +267,10 @@
       profitEl.className = 'value ' + (profit >= 0 ? 'green' : 'red');
     }
 
-    // 渲染项目列表
     function renderProjects() {
       const container = document.getElementById('projectList');
       if (data.projects.length === 0) {
-        container.innerHTML = '<div style="color:#6b7280;font-size:14px;padding:12px;">暂无项目，添加一个开始吧~</div>';
+        container.innerHTML = '<div style="color:#6b7280;font-size:14px;padding:12px;">暂无项目，请先在 data.json 中添加</div>';
         return;
       }
 
@@ -377,26 +278,16 @@
         const stats = getProjectStats(p.id);
         const profitClass = stats.profit > 0 ? 'positive' : stats.profit < 0 ? 'negative' : 'zero';
         const active = selectedProjectId === p.id ? ' active' : '';
-        return `
-          <div class="project-item${active}" onclick="selectProject('${p.id}')">
-            <div class="name">${escapeHtml(p.name)}</div>
-            <div class="stats">
-              <span style="color:#9ca3af">盈利 ${formatMoney(stats.profit)}</span>
-              <span class="profit ${profitClass}">${stats.profit >= 0 ? '+' : ''}${formatMoney(stats.profit)}</span>
-            </div>
-          </div>
-        `;
+        return '<div class="project-item' + active + '" onclick="selectProject(\'' + p.id + '\')"><div class="name">' + escapeHtml(p.name) + '</div><div class="stats"><span style="color:#9ca3af">盈利 ' + formatMoney(stats.profit) + '</span><span class="profit ' + profitClass + '">' + (stats.profit >= 0 ? '+' : '') + formatMoney(stats.profit) + '</span></div></div>';
       }).join('');
     }
 
-    // 选择项目
     function selectProject(id) {
       selectedProjectId = selectedProjectId === id ? null : id;
       renderProjects();
       renderTable();
     }
 
-    // 渲染图表
     function renderChart() {
       const canvas = document.getElementById('chart');
       const ctx = canvas.getContext('2d');
@@ -416,9 +307,8 @@
       const chartW = W - padding.left - padding.right;
       const chartH = H - padding.top - padding.bottom;
 
-      // 计算数据范围
       let minVal = 0, maxVal = 0;
-      projects.forEach(p => {
+      projects.forEach(function(p) {
         const stats = getProjectStats(p.id);
         minVal = Math.min(minVal, stats.cost, -stats.profit);
         maxVal = Math.max(maxVal, stats.revenue, stats.cost, stats.profit);
@@ -430,7 +320,6 @@
       const groupW = chartW / projects.length;
       const baselineY = padding.top + chartH * (maxVal / (maxVal - minVal));
 
-      // 画基线
       ctx.strokeStyle = '#2d3748';
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -438,34 +327,18 @@
       ctx.lineTo(W - padding.right, baselineY);
       ctx.stroke();
 
-      // 画零线（如果不在基线位置）
-      const zeroY = padding.top + chartH * (maxVal / (maxVal - minVal));
-      if (Math.abs(zeroY - baselineY) > 5) {
-        ctx.strokeStyle = '#4b5563';
-        ctx.setLineDash([4, 4]);
-        ctx.beginPath();
-        ctx.moveTo(padding.left, zeroY);
-        ctx.lineTo(W - padding.right, zeroY);
-        ctx.stroke();
-        ctx.setLineDash([]);
-      }
-
-      // 绘制
-      projects.forEach((p, i) => {
+      projects.forEach(function(p, i) {
         const stats = getProjectStats(p.id);
         const groupX = padding.left + groupW * i + groupW * 0.2;
 
-        // 成本柱（红色）
         const costH = (stats.cost / (maxVal - minVal)) * chartH;
         ctx.fillStyle = '#ef4444';
         ctx.fillRect(groupX, baselineY, barW, -costH);
 
-        // 收入柱（绿色）
         const revenueH = (stats.revenue / (maxVal - minVal)) * chartH;
         ctx.fillStyle = '#10b981';
         ctx.fillRect(groupX + barW + 4, baselineY, barW, -revenueH);
 
-        // 标签
         ctx.fillStyle = '#9ca3af';
         ctx.font = '11px Inter';
         ctx.textAlign = 'center';
@@ -473,7 +346,6 @@
         ctx.fillText(label, groupX + barW + 2, H - 20);
       });
 
-      // 图例
       ctx.font = '12px Inter';
       ctx.textAlign = 'right';
       ctx.fillStyle = '#ef4444';
@@ -486,125 +358,49 @@
       ctx.fillText('收入', W - 54, 20);
     }
 
-    // 渲染表格
     function renderTable() {
       const tbody = document.getElementById('tableBody');
-      let entries = [...data.entries].sort((a, b) => b.createdAt - a.createdAt);
+      let entries = data.entries.slice().sort(function(a, b) { return b.created_at - a.created_at; });
 
-      // 如果选中了项目，过滤
       if (selectedProjectId) {
-        entries = entries.filter(e => e.projectId === selectedProjectId);
+        entries = entries.filter(function(e) { return e.project_id === selectedProjectId; });
       }
 
       if (entries.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty-table">暂无账目记录</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-table">暂无账目记录</td></tr>';
         return;
       }
 
-      tbody.innerHTML = entries.map(e => {
-        const project = data.projects.find(p => p.id === e.projectId);
-        return `
-          <tr>
-            <td>${formatDate(e.createdAt)}</td>
-            <td>${project ? escapeHtml(project.name) : '未知'}</td>
-            <td><span class="type-badge ${e.type}">${e.type === 'cost' ? '成本' : '收入'}</span></td>
-            <td class="amount ${e.type}">${e.type === 'cost' ? '-' : '+'}${formatMoney(e.amount)}</td>
-            <td style="color:#9ca3af">${escapeHtml(e.note || '—')}</td>
-            <td><button class="delete-btn" onclick="deleteEntry('${e.id}')">✕</button></td>
-          </tr>
-        `;
+      tbody.innerHTML = entries.map(function(e) {
+        const project = data.projects.find(function(p) { return p.id === e.project_id; });
+        return '<tr><td>' + formatDate(e.created_at) + '</td><td>' + (project ? escapeHtml(project.name) : '未知') + '</td><td><span class="type-badge ' + e.type + '">' + (e.type === 'cost' ? '成本' : '收入') + '</span></td><td class="amount ' + e.type + '">' + (e.type === 'cost' ? '-' : '+') + formatMoney(e.amount) + '</td><td style="color:#9ca3af">' + escapeHtml(e.note || '—') + '</td></tr>';
       }).join('');
     }
 
-    // 更新项目下拉
-    function updateProjectSelect() {
-      const select = document.getElementById('entryProject');
-      select.innerHTML = '<option value="">选择项目</option>' +
-        data.projects.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
-    }
-
-    // 添加项目
-    function addProject() {
-      const input = document.getElementById('newProjectName');
-      const name = input.value.trim();
-      if (!name) return alert('请输入项目名称');
-      if (data.projects.find(p => p.name === name)) return alert('项目已存在');
-
-      data.projects.push({ id: genId(), name, createdAt: Date.now() });
-      input.value = '';
-      saveData();
-      updateProjectSelect();
-      renderProjects();
-      renderChart();
-      renderOverview();
-    }
-
-    // 添加账目
-    function addEntry() {
-      const projectId = document.getElementById('entryProject').value;
-      const type = document.getElementById('entryType').value;
-      const amount = parseFloat(document.getElementById('entryAmount').value);
-      const note = document.getElementById('entryNote').value.trim();
-
-      if (!projectId) return alert('请选择项目');
-      if (!amount || amount <= 0) return alert('请输入有效金额');
-
-      data.entries.push({
-        id: genId(),
-        projectId,
-        type,
-        amount,
-        note,
-        createdAt: Date.now()
-      });
-
-      document.getElementById('entryAmount').value = '';
-      document.getElementById('entryNote').value = '';
-
-      saveData();
-      renderProjects();
-      renderChart();
-      renderOverview();
-      renderTable();
-    }
-
-    // 删除账目
-    function deleteEntry(id) {
-      if (!confirm('确定删除这条记录？')) return;
-      data.entries = data.entries.filter(e => e.id !== id);
-      saveData();
-      renderProjects();
-      renderChart();
-      renderOverview();
-      renderTable();
-    }
-
-    // 清空全部
-    function clearAll() {
-      if (!confirm('确定清空所有数据？此操作不可恢复！')) return;
-      data = { projects: [], entries: [] };
-      selectedProjectId = null;
-      saveData();
-      updateProjectSelect();
-      renderProjects();
-      renderChart();
-      renderOverview();
-      renderTable();
-    }
-
-    // HTML转义
     function escapeHtml(str) {
       const div = document.createElement('div');
       div.textContent = str;
       return div.innerHTML;
     }
 
-    // 初始化
-    updateProjectSelect();
-    renderOverview();
-    renderProjects();
-    renderChart();
-    renderTable();
+    async function loadData() {
+      try {
+        const resp = await fetch(DATA_URL);
+        if (resp.ok) {
+          data = await resp.json();
+          renderOverview();
+          renderProjects();
+          renderChart();
+          renderTable();
+          document.getElementById('lastUpdate').textContent = '最后更新: ' + new Date().toLocaleString('zh-CN');
+        }
+      } catch (e) {
+        document.getElementById('projectList').innerHTML = '<div class="empty-table">加载失败，请刷新重试</div>';
+        document.getElementById('tableBody').innerHTML = '<tr><td colspan="5" class="empty-table">加载失败</td></tr>';
+      }
+    }
+
+    loadData();
   </script>
 </body>
 </html>
